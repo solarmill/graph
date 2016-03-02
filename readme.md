@@ -1,6 +1,8 @@
 # Graph
 
-A versatile graphing module for emoncms.
+A versatile graphing module for emoncms. This module is designed to replace the default data viewer in emoncms and is loaded when a feed view button is clicked.
+
+**V1**
 
 - Multigraph viewer
 - One click add remove feed left/right axis control
@@ -22,3 +24,14 @@ A versatile graphing module for emoncms.
 ### CSV Output
 
 ![csv output](images/emoncms_graph_csvout.png)
+
+**Further development**
+
+- Ability to save and load saved graph's
+- Import graph built using graph into dashboards
+- Tooltips
+- Datapoint editor
+- Selectable line or bar graph form on a per feed basis
+- Selectable line color and fill.
+
+Saved graphs produced with this module could replace vis module visualisations: realtime, rawdata, bargraph, graph, multigraph. Inbuilt data editing could replace edit daily and edit realtime. The histogram calculation on the fly can replace the need for the histogram input processor, feed engine and visualisations and on the fly averaging could replace the need for the PHPFiwa feed engine.
