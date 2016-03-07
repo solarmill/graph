@@ -19,7 +19,7 @@
 <script language="javascript" type="text/javascript" src="<?php echo $path;?>Lib/flot/jquery.flot.time.min.js"></script>
 <script language="javascript" type="text/javascript" src="<?php echo $path;?>Lib/flot/jquery.flot.selection.min.js"></script>
 
-<script language="javascript" type="text/javascript" src="<?php echo $path;?>Modules/graph/graph.js"></script>
+<script language="javascript" type="text/javascript" src="<?php echo $path;?>Modules/graph/graph1.js"></script>
 
 <style>
 #wrapper {
@@ -149,7 +149,7 @@
             <div id="window-info" style=""></div><br>
                 
             <table class="table">
-                <tr><th>Feed</th><th>Quality</th><th>Min</th><th>Max</th><th>Diff</th><th>Mean</th><th>Stdev</th><th>Smoothing</th><th>Decimal Points</th><th style="width:120px"></th><th style="width:80px"></th></tr>
+                <tr><th>Feed</th><th></th><th>Quality</th><th>Min</th><th>Max</th><th>Diff</th><th>Mean</th><th>Stdev</th><th>Smoothing</th><th>Decimal Points</th><th style="width:120px"></th><th style="width:80px"></th></tr>
                 <tbody id="stats"></tbody>
             </table>
             
@@ -184,7 +184,7 @@
     var urlparts = window.location.pathname.split("graph/");
     if (urlparts.length==2) {
         feedid = parseInt(urlparts[1]);
-        graph.config.feedlist.push({id:feedid, yaxis:1, fill:0, smoothing:0, dp:1});
+        graph.config.feedlist.push({id:feedid, yaxis:1, fill:0, smoothing:0, dp:1, plottype:'lines'});
     }
     
     graph.init();

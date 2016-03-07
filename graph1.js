@@ -182,7 +182,7 @@ var graph = {
                }
             }
             
-            if (loaded==false && checked) graph.config.feedlist.push({id:feedid, yaxis:1, fill:0, smoothing:0, dp:1});
+            if (loaded==false && checked) graph.config.feedlist.push({id:feedid, yaxis:1, fill:0, smoothing:0, dp:1, plottype:'lines'});
             graph.reloaddraw();
         });
         
@@ -203,7 +203,7 @@ var graph = {
                }
             }
             
-            if (loaded==false && checked) graph.config.feedlist.push({id:feedid, yaxis:2, fill:0, smoothing:0, dp:1});
+            if (loaded==false && checked) graph.config.feedlist.push({id:feedid, yaxis:2, fill:0, smoothing:0, dp:1, plottype:'lines'});
             graph.reloaddraw();
         });
         
@@ -234,6 +234,21 @@ var graph = {
                 }
             }
         });
+        
+        $("body").on("change",".plottype",function(){
+            var feedid = $(this).attr("feedid");
+            var plottype = $(this).val();
+            
+            for (var z in graph.config.feedlist) {
+                if (graph.config.feedlist[z].id == feedid) {
+                    graph.config.feedlist[z].plottype = plottype;
+                    
+                    graph.draw();
+                    break;
+                }
+            }
+        })
+        
         
         $("#csvtimeformat").change(function(){
             graph.printcsv();
@@ -343,7 +358,7 @@ var graph = {
                 mode: "time", timezone: "browser", 
                 min: graph.start, max: graph.end
             },
-			      yaxes: [ { min: 0 }, {
+			      yaxes: [ { }, {
 					      // align if we are to the right
 					      alignTicksWithAxis: 1,
 					      position: "right",
@@ -380,7 +395,12 @@ var graph = {
             // Series smoothing (only affects the plot view)
             if (feedlist[z].smoothing>0) data = graph.smooth(data,feedlist[z].smoothing);
             // Add series to plot
-            plotdata.push({label:feedlist[z].id+":"+graph.getfeedname(feedlist[z].id), data:data, yaxis:feedlist[z].yaxis});
+            
+            var plot = {label:feedlist[z].id+":"+graph.getfeedname(feedlist[z].id), data:data, yaxis:feedlist[z].yaxis};
+            
+            if (feedlist[z].plottype=='lines') plot.lines = { show: true, fill: false };
+            if (feedlist[z].plottype=='bars') plot.bars = { show: true, barWidth: graph.interval * 1000 * 0.75 };
+            plotdata.push(plot);
         }
         $.plot($('#placeholder'), plotdata, options);
         
@@ -396,6 +416,7 @@ var graph = {
          
             out += "<tr>";
             out += "<td>"+feedlist[z].id+":"+graph.getfeedname(feedlist[z].id)+"</td>";
+            out += "<td><select class='plottype' feedid="+feedlist[z].id+" style='width:80px'><option value='lines'>Lines</option><option value='bars'>Bars</option></select></td>";
             var quality = Math.round(100 * (1-(feedlist[z].stats.npointsnull/feedlist[z].stats.npoints)));
             out += "<td>"+quality+"% ("+(feedlist[z].stats.npoints-feedlist[z].stats.npointsnull)+"/"+feedlist[z].stats.npoints+")</td>";
             out += "<td>"+feedlist[z].stats.minval.toFixed(dp)+"</td>";
