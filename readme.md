@@ -2,6 +2,25 @@
 
 A versatile graphing module for emoncms. This module is designed to replace the default data viewer in emoncms and is loaded when a feed view button is clicked.
 
+# Install 
+
+## 1. Install the Graph module
+
+And ensure you are runing latest version and Emoncms
+
+    cd /var/www/emoncms
+    git pull
+    cd /var/www/emoncms/Modules
+    git clone https://github.com/emoncms/graph
+
+Check for Database upates in Admin
+
+## 2. Make Emoncms use graph module as defauld feed viewer
+
+Add (or change) `$feedviewpath = "graph/";` in `settings.php`
+
+# Change Log 
+
 **V1**
 
 - Multigraph viewer
