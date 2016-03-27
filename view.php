@@ -71,7 +71,7 @@
 <div id="wrapper">
     <div id="sidebar-wrapper">
             <h3>Feeds</h3>
-            <div style="height:650px; overflow-y: scroll; overflow-x: hidden; background-color:#f3f3f3; width:250px">
+            <div style="overflow-y: scroll; overflow-x: hidden; background-color:#f3f3f3; width:250px">
                 <table class="table">
                     <colgroup>
                        <col span="1" style="width: 70%;">
