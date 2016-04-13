@@ -124,6 +124,18 @@ var graph = {
             graph.draw();
         });
         
+        $("body").on("click",".getaverage",function(){
+            var feedid = $(this).attr("feedid");
+            
+            for (z in graph.config.feedlist) {
+                if (graph.config.feedlist[z].id==feedid) {
+                    graph.config.feedlist[z].getaverage = $(this)[0].checked;
+                    break;
+                }
+            }
+            graph.draw();
+        });
+        
         $("body").on("click",".histogram",function(){
             $("#navigation").hide();
             $("#histogram-controls").show();
@@ -182,7 +194,7 @@ var graph = {
                }
             }
             
-            if (loaded==false && checked) graph.config.feedlist.push({id:feedid, yaxis:1, fill:0, smoothing:0, dp:1, plottype:'lines'});
+            if (loaded==false && checked) graph.config.feedlist.push({id:feedid, yaxis:1, fill:0, smoothing:0, getaverage:false, dp:1, plottype:'lines'});
             graph.reloaddraw();
         });
         
@@ -203,7 +215,7 @@ var graph = {
                }
             }
             
-            if (loaded==false && checked) graph.config.feedlist.push({id:feedid, yaxis:2, fill:0, smoothing:0, dp:1, plottype:'lines'});
+            if (loaded==false && checked) graph.config.feedlist.push({id:feedid, yaxis:2, fill:0, smoothing:0, getaverage:false, dp:1, plottype:'lines'});
             graph.reloaddraw();
         });
         
@@ -311,7 +323,10 @@ var graph = {
         
         for (var z in feedlist)
         {
-            var request = path+"feed/data.json?id="+feedlist[z].id+"&start="+graph.start+"&end="+graph.end+"&interval="+graph.interval+"&skipmissing="+graph.skipmissing+"&limitinterval="+graph.limitinterval;
+            var method = "data";
+            if (feedlist[z].getaverage) method = "average";
+            
+            var request = path+"feed/"+method+".json?id="+feedlist[z].id+"&start="+graph.start+"&end="+graph.end+"&interval="+graph.interval+"&skipmissing="+graph.skipmissing+"&limitinterval="+graph.limitinterval;
             
             $("#request-start").val(graph.start/1000);
             $("#request-end").val(graph.end/1000);
@@ -427,6 +442,7 @@ var graph = {
             out += "<td><select feedid="+feedlist[z].id+" class='smoothing' style='width:50px'>";
             for (var i=0; i<11; i++) out += "<option>"+i+"</option>";
             out += "</select></td>";
+            out += "<td><input class='getaverage' feedid="+feedlist[z].id+" type='checkbox'/></td>";
             out += "<td><select feedid="+feedlist[z].id+" class='decimalpoints' style='width:50px'><option>0</option><option>1</option><option>2</option><option>3</option></select></td>";
             out += "<td><button feedid="+feedlist[z].id+" class='histogram'>Histogram <i class='icon-signal'></i></button></td>";
             out += "<td><a href='"+apiurl+"'><button class='btn btn-link'>API REF</button></a></td>";
@@ -437,6 +453,7 @@ var graph = {
         for (var z in feedlist) {
             $(".smoothing[feedid="+feedlist[z].id+"]").val(feedlist[z].smoothing);
             $(".decimalpoints[feedid="+feedlist[z].id+"]").val(feedlist[z].dp);
+            $(".getaverage[feedid="+feedlist[z].id+"]")[0].checked = feedlist[z].getaverage;
         }
         
         graph.config.feedlist = feedlist;

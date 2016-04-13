@@ -149,7 +149,7 @@
             <div id="window-info" style=""></div><br>
                 
             <table class="table">
-                <tr><th>Feed</th><th></th><th>Quality</th><th>Min</th><th>Max</th><th>Diff</th><th>Mean</th><th>Stdev</th><th>Smoothing</th><th>Decimal Points</th><th style="width:120px"></th><th style="width:80px"></th></tr>
+                <tr><th>Feed</th><th></th><th>Quality</th><th>Min</th><th>Max</th><th>Diff</th><th>Mean</th><th>Stdev</th><th>Smoothing</th><th>Average</th><th>Decimal Points</th><th style="width:120px"></th><th style="width:80px"></th></tr>
                 <tbody id="stats"></tbody>
             </table>
             
