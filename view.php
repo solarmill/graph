@@ -19,7 +19,7 @@
 <script language="javascript" type="text/javascript" src="<?php echo $path;?>Lib/flot/jquery.flot.time.min.js"></script>
 <script language="javascript" type="text/javascript" src="<?php echo $path;?>Lib/flot/jquery.flot.selection.min.js"></script>
 
-<script language="javascript" type="text/javascript" src="<?php echo $path;?>Modules/graph/graph1.js"></script>
+<script language="javascript" type="text/javascript" src="<?php echo $path;?>Modules/graph/graph2.js"></script>
 
 <style>
 #wrapper {
