@@ -1,28 +1,24 @@
 var graph = {
+    // holds feeds list feed/list.json
     feeds:[],
+    feedlist: [],
     
-    config: {
-        name: "",
-        timeWindow: 3600000*24.0*7,
-        floating: 1,
-        start:0,
-        end:0,
-        feedlist: []
-    },
-
+    timeWindow: 3600000*24.0*7,
+    
+    // main data request parameters
     start:0,
     end:0,
+    
+    requesttype: "interval",
     interval:0,
-    npoints:600,
     skipmissing:0,
     limitinterval:1,
+    
+    // Default number of points loaded when interval is auto selected
+    npoints:600,
+    
     showcsv:0,
     data:[],
-
-    mean: 0,
-    stdev: 0,
-    minval: 0,
-    maxval: 0,
     
     fixinterval: 0,
     showmissing: 0,
@@ -53,21 +49,17 @@ var graph = {
             }
         });
         
-        for (var z in graph.config.feedlist) {
-            var feedid = graph.config.feedlist[z].id;
-            if (graph.config.feedlist[z].yaxis==1) $(".feed-select-left[feedid="+feedid+"]")[0].checked = true;
-            if (graph.config.feedlist[z].yaxis==2) $(".feed-select-right[feedid="+feedid+"]")[0].checked = true;
+        for (var z in graph.feedlist) {
+            var feedid = graph.feedlist[z].id;
+            if (graph.feedlist[z].yaxis==1) $(".feed-select-left[feedid="+feedid+"]")[0].checked = true;
+            if (graph.feedlist[z].yaxis==2) $(".feed-select-right[feedid="+feedid+"]")[0].checked = true;
         }
     
-        var timeWindow = graph.config.timeWindow;
-        if (graph.config.floating) {
-            var now = Math.round(+new Date * 0.001)*1000;
-            graph.start = now - timeWindow;
-            graph.end = now;
-        } else {
-            graph.start = graph.config.start;
-            graph.end = graph.config.end;
-        }
+        var timeWindow = graph.timeWindow;
+        var now = Math.round(+new Date * 0.001)*1000;
+        graph.start = now - timeWindow;
+        graph.end = now;
+        
         graph.calc_interval();
 
         $("#graph_zoomout").click(function () {graph.zoomout(); graph.reloaddraw();});
@@ -112,24 +104,24 @@ var graph = {
         });
         $(".csvoptions").hide();
         
-        $("body").on("change",".smoothing",function(){
+        $("body").on("click",".getaverage",function(){
             var feedid = $(this).attr("feedid");
             
-            for (z in graph.config.feedlist) {
-                if (graph.config.feedlist[z].id==feedid) {
-                    graph.config.feedlist[z].smoothing = $(this).val();
+            for (z in graph.feedlist) {
+                if (graph.feedlist[z].id==feedid) {
+                    graph.feedlist[z].getaverage = $(this)[0].checked;
                     break;
                 }
             }
             graph.draw();
         });
         
-        $("body").on("click",".getaverage",function(){
+        $("body").on("click",".delta",function(){
             var feedid = $(this).attr("feedid");
             
-            for (z in graph.config.feedlist) {
-                if (graph.config.feedlist[z].id==feedid) {
-                    graph.config.feedlist[z].getaverage = $(this)[0].checked;
+            for (z in graph.feedlist) {
+                if (graph.feedlist[z].id==feedid) {
+                    graph.feedlist[z].delta = $(this)[0].checked;
                     break;
                 }
             }
@@ -145,15 +137,15 @@ var graph = {
             var resolution = 1;
             
             var index = 0;
-            for (z in graph.config.feedlist) {
-              if (graph.config.feedlist[z].id==feedid) {
+            for (z in graph.feedlist) {
+              if (graph.feedlist[z].id==feedid) {
                 index = z;
                 break;
               }
             }
             
-            if (graph.config.feedlist[index].stats.diff<5000) resolution = 10;
-            if (graph.config.feedlist[index].stats.diff<100) resolution = 0.1;
+            if (graph.feedlist[index].stats.diff<5000) resolution = 10;
+            if (graph.feedlist[index].stats.diff<100) resolution = 0.1;
             $("#histogram-resolution").val(resolution);
             
             graph.histogram(feedid,type,resolution);
@@ -182,19 +174,19 @@ var graph = {
             var checked = $(this)[0].checked;
             
             var loaded = false;
-            for (var z in graph.config.feedlist) {
-               if (graph.config.feedlist[z].id==feedid) {
+            for (var z in graph.feedlist) {
+               if (graph.feedlist[z].id==feedid) {
                    if (!checked) {
-                       graph.config.feedlist.splice(z,1);
+                       graph.feedlist.splice(z,1);
                    } else {
-                       graph.config.feedlist[z].yaxis = 1;
+                       graph.feedlist[z].yaxis = 1;
                        loaded = true;
                        $(".feed-select-right[feedid="+feedid+"]")[0].checked = false;
                    }
                }
             }
             
-            if (loaded==false && checked) graph.config.feedlist.push({id:feedid, yaxis:1, fill:0, smoothing:0, getaverage:false, dp:1, plottype:'lines'});
+            if (loaded==false && checked) graph.feedlist.push({id:feedid, yaxis:1, fill:0, scale: 1.0, delta:false, getaverage:false, dp:1, plottype:'lines'});
             graph.reloaddraw();
         });
         
@@ -203,19 +195,19 @@ var graph = {
             var checked = $(this)[0].checked;
             
             var loaded = false;
-            for (var z in graph.config.feedlist) {
-               if (graph.config.feedlist[z].id==feedid) {
+            for (var z in graph.feedlist) {
+               if (graph.feedlist[z].id==feedid) {
                    if (!checked) {
-                       graph.config.feedlist.splice(z,1);
+                       graph.feedlist.splice(z,1);
                    } else {
-                       graph.config.feedlist[z].yaxis = 2;
+                       graph.feedlist[z].yaxis = 2;
                        loaded = true;
                        $(".feed-select-left[feedid="+feedid+"]")[0].checked = false;
                    }
                }
             }
             
-            if (loaded==false && checked) graph.config.feedlist.push({id:feedid, yaxis:2, fill:0, smoothing:0, getaverage:false, dp:1, plottype:'lines'});
+            if (loaded==false && checked) graph.feedlist.push({id:feedid, yaxis:2, fill:0, scale: 1.0, delta:false, getaverage:false, dp:1, plottype:'lines'});
             graph.reloaddraw();
         });
         
@@ -233,13 +225,37 @@ var graph = {
             }
         });
         
+        $("#request-type").val("interval");
+        $("#request-type").change(function() {
+            var type = $(this).val();
+            type = type.toLowerCase();
+            
+            if (type!="interval") {
+                $(".fixed-interval-options").hide();
+                graph.fixinterval = 1;
+            } else { 
+                $(".fixed-interval-options").show();
+                graph.fixinterval = 0;
+            }
+            
+            graph.requesttype = type;
+            
+            // Intervals are set here for bar graph bar width sizing
+            if (type=="daily") graph.interval = 86400;
+            if (type=="weekly") graph.interval = 86400*7;
+            if (type=="monthly") graph.interval = 86400*30;
+            if (type=="annual") graph.interval = 86400*365;
+            
+            $("#request-interval").val(graph.interval);
+        });
+        
         $("body").on("change",".decimalpoints",function(){
             var feedid = $(this).attr("feedid");
             var dp = $(this).val();
             
-            for (var z in graph.config.feedlist) {
-                if (graph.config.feedlist[z].id == feedid) {
-                    graph.config.feedlist[z].dp = dp;
+            for (var z in graph.feedlist) {
+                if (graph.feedlist[z].id == feedid) {
+                    graph.feedlist[z].dp = dp;
                     
                     graph.draw();
                     break;
@@ -251,15 +267,15 @@ var graph = {
             var feedid = $(this).attr("feedid");
             var plottype = $(this).val();
             
-            for (var z in graph.config.feedlist) {
-                if (graph.config.feedlist[z].id == feedid) {
-                    graph.config.feedlist[z].plottype = plottype;
+            for (var z in graph.feedlist) {
+                if (graph.feedlist[z].id == feedid) {
+                    graph.feedlist[z].plottype = plottype;
                     
                     graph.draw();
                     break;
                 }
             }
-        })
+        });
         
         
         $("#csvtimeformat").change(function(){
@@ -314,25 +330,29 @@ var graph = {
         graph.reload();
         graph.draw();
     },
-      
+    
     reload: function()
     {
-        var feedlist = graph.config.feedlist;
+        var intervalms = graph.interval * 1000;
+        graph.start = Math.round(graph.start / intervalms) * intervalms;
+        graph.end = Math.round(graph.end / intervalms) * intervalms;
         
+        $("#request-start").val(graph.start*0.001);
+        $("#request-end").val(graph.end*0.001);
+        $("#request-interval").val(graph.interval);
+        $("#request-limitinterval").attr("checked",graph.limitinterval);
+        
+        var feedlist = graph.feedlist;
         var errorstr = "";    
         
         for (var z in feedlist)
         {
+            var mode = "&interval="+graph.interval+"&skipmissing="+graph.skipmissing+"&limitinterval="+graph.limitinterval;
+            if (graph.requesttype!="interval") mode = "&mode="+graph.requesttype;
+            
             var method = "data";
             if (feedlist[z].getaverage) method = "average";
-            
-            var request = path+"feed/"+method+".json?id="+feedlist[z].id+"&start="+graph.start+"&end="+graph.end+"&interval="+graph.interval+"&skipmissing="+graph.skipmissing+"&limitinterval="+graph.limitinterval;
-            
-            $("#request-start").val(graph.start/1000);
-            $("#request-end").val(graph.end/1000);
-            $("#request-interval").val(graph.interval);
-            // $("#request-skipmissing").attr("checked",app_graph.skipmissing);
-            $("#request-limitinterval").attr("checked",graph.limitinterval);
+            var request = path+"feed/"+method+".json?id="+feedlist[z].id+"&start="+graph.start+"&end="+graph.end + mode;
             
             $.ajax({                                      
                 url: request,
@@ -352,6 +372,31 @@ var graph = {
                     if (!valid) errorstr += "<div class='alert alert-danger'><b>Request error</b> "+data_in+"</div>";
                 }
             });
+            
+            if (feedlist[z].delta) {
+                for (var i=1; i<feedlist[z].data.length; i++) {
+                    if (feedlist[z].data[i][1]!=null && feedlist[z].data[i-1][1]!=null) {
+                        var delta = feedlist[z].data[i][1] - feedlist[z].data[i-1][1];
+                        feedlist[z].data[i-1][1] = delta;
+                    } else {
+                        feedlist[z].data[i][1] = null;
+                        feedlist[z].data[i-1][1] = null;
+                    }
+                }
+                feedlist[z].data[feedlist[z].data.length-1][1] = null;
+            }
+            
+            // Apply a scale to feed values
+            var scale = $(".scale[feedid="+feedlist[z].id+"]").val();
+            if (scale!=undefined) feedlist[z].scale = scale;
+            
+            if (feedlist[z].scale!=undefined && feedlist[z].scale!=1.0) {
+                for (var i=0; i<feedlist[z].data.length; i++) {
+                    if (feedlist[z].data[i][1]!=null) {
+                        feedlist[z].data[i][1] = feedlist[z].data[i][1] * feedlist[z].scale;
+                    }
+                }
+            }
         }
         
         if (errorstr!="") {
@@ -360,12 +405,12 @@ var graph = {
             $("#error").hide();
         }
         
-        graph.config.feedlist = feedlist;
+        graph.feedlist = feedlist;
     },
     
     draw: function()
     {
-        var feedlist = graph.config.feedlist;
+        var feedlist = graph.feedlist;
 
         var options = {
             lines: { fill: false },
@@ -392,7 +437,7 @@ var graph = {
             mins = "";
         }
         
-        $("#window-info").html("<b>Window:</b> "+graph.printdate(graph.start)+" > "+graph.printdate(graph.end)+"<br><b>Length:</b> "+hours+"h"+mins+" ("+time_in_window+" seconds)");
+        $("#window-info").html("<b>Window:</b> "+graph.printdate(graph.start)+" > "+graph.printdate(graph.end)+", <b>Length:</b> "+hours+"h"+mins+" ("+time_in_window+" seconds)");
         
         var plotdata = [];
         for (var z in feedlist) {
@@ -407,8 +452,6 @@ var graph = {
                 }
                 data = tmp;
             }
-            // Series smoothing (only affects the plot view)
-            if (feedlist[z].smoothing>0) data = graph.smooth(data,feedlist[z].smoothing);
             // Add series to plot
             
             var plot = {label:feedlist[z].id+":"+graph.getfeedname(feedlist[z].id), data:data, yaxis:feedlist[z].yaxis};
@@ -431,7 +474,14 @@ var graph = {
          
             out += "<tr>";
             out += "<td>"+feedlist[z].id+":"+graph.getfeedname(feedlist[z].id)+"</td>";
-            out += "<td><select class='plottype' feedid="+feedlist[z].id+" style='width:80px'><option value='lines'>Lines</option><option value='bars'>Bars</option></select></td>";
+            out += "<td><select class='plottype' feedid="+feedlist[z].id+" style='width:80px'>";
+            
+            var selected = "";
+            if (feedlist[z].plottype == "lines") selected = "selected"; else selected = "";
+            out += "<option value='lines' "+selected+">Lines</option>";
+            if (feedlist[z].plottype == "bars") selected = "selected"; else selected = "";
+            out += "<option value='bars' "+selected+">Bars</option>";
+            out += "</select></td>";
             var quality = Math.round(100 * (1-(feedlist[z].stats.npointsnull/feedlist[z].stats.npoints)));
             out += "<td>"+quality+"% ("+(feedlist[z].stats.npoints-feedlist[z].stats.npointsnull)+"/"+feedlist[z].stats.npoints+")</td>";
             out += "<td>"+feedlist[z].stats.minval.toFixed(dp)+"</td>";
@@ -439,10 +489,11 @@ var graph = {
             out += "<td>"+feedlist[z].stats.diff.toFixed(dp)+"</td>";
             out += "<td>"+feedlist[z].stats.mean.toFixed(dp)+"</td>";
             out += "<td>"+feedlist[z].stats.stdev.toFixed(dp)+"</td>";
-            out += "<td><select feedid="+feedlist[z].id+" class='smoothing' style='width:50px'>";
             for (var i=0; i<11; i++) out += "<option>"+i+"</option>";
             out += "</select></td>";
-            out += "<td><input class='getaverage' feedid="+feedlist[z].id+" type='checkbox'/></td>";
+            out += "<td style='text-align:center'><input class='scale' feedid="+feedlist[z].id+" type='text' style='width:50px' value='1.0' /></td>";
+            out += "<td style='text-align:center'><input class='delta' feedid="+feedlist[z].id+" type='checkbox'/></td>";
+            out += "<td style='text-align:center'><input class='getaverage' feedid="+feedlist[z].id+" type='checkbox'/></td>";
             out += "<td><select feedid="+feedlist[z].id+" class='decimalpoints' style='width:50px'><option>0</option><option>1</option><option>2</option><option>3</option></select></td>";
             out += "<td><button feedid="+feedlist[z].id+" class='histogram'>Histogram <i class='icon-signal'></i></button></td>";
             out += "<td><a href='"+apiurl+"'><button class='btn btn-link'>API REF</button></a></td>";
@@ -451,12 +502,13 @@ var graph = {
         $("#stats").html(out);
         
         for (var z in feedlist) {
-            $(".smoothing[feedid="+feedlist[z].id+"]").val(feedlist[z].smoothing);
             $(".decimalpoints[feedid="+feedlist[z].id+"]").val(feedlist[z].dp);
             $(".getaverage[feedid="+feedlist[z].id+"]")[0].checked = feedlist[z].getaverage;
+            $(".delta[feedid="+feedlist[z].id+"]")[0].checked = feedlist[z].delta;
+            $(".scale[feedid="+feedlist[z].id+"]").val(feedlist[z].scale);
         }
         
-        graph.config.feedlist = feedlist;
+        graph.feedlist = feedlist;
         if (graph.showcsv) graph.printcsv();
     },
     
@@ -466,7 +518,7 @@ var graph = {
         var nullvalues = $("#csvnullvalues").val();
         
         
-        var feedlist = graph.config.feedlist;
+        var feedlist = graph.feedlist;
         var csvout = "";
 
         var value = [];
@@ -503,10 +555,12 @@ var graph = {
             for (var f in feedlist) {
                 if (value[f]==undefined) value[f] = null;
                 lastvalue[f] = value[f];
+                if (feedlist[f].data[z]!=undefined) {
                 if (feedlist[f].data[z][1]==null) nullfound = true;
                 if (feedlist[f].data[z][1]!=null || nullvalues=="show") value[f] = feedlist[f].data[z][1];
                 if (value[f]!=null) value[f] = (value[f]*1.0).toFixed(feedlist[f].dp);
                 line.push(value[f]+"");
+                }
             }
             
             if (nullvalues=="remove" && nullfound) {
@@ -605,9 +659,12 @@ var graph = {
         var maxval = 0;
         var npoints = 0;
         var npointsnull = 0;
-        for (z in data)
+        
+        var val = null;
+        for (var z in data)
         {
-            var val = data[z][1];
+            // var val = data[z][1];                   // 1) only calculated based on present values
+            if (data[z][1]!=null) val = data[z][1];    // 2) if value is missing use last value
             if (val!=null) 
             {
                 if (i==0) {
@@ -643,26 +700,6 @@ var graph = {
         };
     },
     
-    'smooth':function(raw,npoints) 
-    {
-        npoints = parseInt(npoints);
-        
-        var smooth = [];
-        for (var i=0; i<raw.length; i++) {
-            var sum = 0; var nsum = 0;
-            for (var x=-1*npoints; x<=npoints; x++) {
-                if (raw[i+x]!=undefined) {
-                    if (raw[i+x][1]!=null) {
-                        sum += raw[i+x][1]*1.0;
-                        nsum++;
-                    }
-                }
-            }
-            smooth[i] = [raw[i][0],sum/nsum];
-        }
-        return smooth;
-    },
-    
     'getfeedname':function(id) {
         for (z in graph.feeds) {
             if (graph.feeds[z].id == id) {
@@ -676,9 +713,9 @@ var graph = {
         var histogram = {};
         var total_histogram = 0;
         var val = 0;
-        for (z in graph.config.feedlist) {
-          if (graph.config.feedlist[z].id==feedid) {
-            var data = graph.config.feedlist[z].data;
+        for (z in graph.feedlist) {
+          if (graph.feedlist[z].id==feedid) {
+            var data = graph.feedlist[z].data;
             
             for (var i=1; i<data.length; i++) {
               if (data[i][1]!=null) {

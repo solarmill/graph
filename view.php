@@ -130,18 +130,27 @@
 
         <div id="info" style="padding:20px; display:none">
             
-            <div class="input-prepend input-append" style="float:right">
-                <span class="add-on" style="width:75px">Start</span>
+            <div class="input-prepend input-append">
+                <span class="add-on" style="width:50px">Start</span>
                 <input id="request-start" type="text" style="width:80px" />
 
-                <span class="add-on" style="width:75px">End</span>
+                <span class="add-on" style="width:50px">End</span>
                 <input id="request-end" type="text" style="width:80px" />
 
-                <span class="add-on" style="width:75px">Interval</span>
-                <input id="request-interval" type="text" style="width:60px" />
-            
-                <span class="add-on">Fix <input id="request-fixinterval" type="checkbox" /></span>
-                <span class="add-on">Limit to data interval <input id="request-limitinterval" type="checkbox" /></span>
+                <span class="add-on" style="width:50px">Type</span>
+                <select id="request-type" style="width:120px">
+                    <option value="interval">Fixed Interval</option>
+                    <option>Daily</option>
+                    <option>Weekly</option>
+                    <option>Monthly</option>
+                    <option>Annual</option>
+                </select>
+                
+                <span class="fixed-interval-options">
+                    <input id="request-interval" type="text" style="width:60px" />
+                    <span class="add-on">Fix <input id="request-fixinterval" type="checkbox" /></span>
+                    <span class="add-on">Limit to data interval <input id="request-limitinterval" type="checkbox" /></span>
+                </span>
                 
                 <button id="reload" class="btn">Reload</button>
             </div>
@@ -149,7 +158,7 @@
             <div id="window-info" style=""></div><br>
                 
             <table class="table">
-                <tr><th>Feed</th><th></th><th>Quality</th><th>Min</th><th>Max</th><th>Diff</th><th>Mean</th><th>Stdev</th><th>Smoothing</th><th>Average</th><th>Decimal Points</th><th style="width:120px"></th><th style="width:80px"></th></tr>
+                <tr><th>Feed</th><th></th><th>Quality</th><th>Min</th><th>Max</th><th>Diff</th><th>Mean</th><th>Stdev</th><th style='text-align:center'>Scale</th><th style='text-align:center'>Delta</th><th style='text-align:center'>Average</th><th>Decimal Points</th><th style="width:120px"></th><th style="width:80px"></th></tr>
                 <tbody id="stats"></tbody>
             </table>
             
@@ -184,7 +193,7 @@
     var urlparts = window.location.pathname.split("graph/");
     if (urlparts.length==2) {
         feedid = parseInt(urlparts[1]);
-        graph.config.feedlist.push({id:feedid, yaxis:1, fill:0, smoothing:0, dp:1, plottype:'lines'});
+        graph.feedlist.push({id:feedid, yaxis:1, fill:0, scale: 1.0, delta:false, dp:1, plottype:'lines'});
     }
     
     graph.init();
