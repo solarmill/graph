@@ -489,6 +489,9 @@ var graph = {
             out += "<td>"+feedlist[z].stats.diff.toFixed(dp)+"</td>";
             out += "<td>"+feedlist[z].stats.mean.toFixed(dp)+"</td>";
             out += "<td>"+feedlist[z].stats.stdev.toFixed(dp)+"</td>";
+            out += "<td>"+((feedlist[z].stats.mean * time_in_window)).toFixed(dp)+"</td>";
+            out += "<td>"+((feedlist[z].stats.mean * time_in_window) / 3600).toFixed(dp)+"</td>";
+            out += "<td>"+((feedlist[z].stats.mean * time_in_window) / 3600000).toFixed(dp)+"</td>";
             for (var i=0; i<11; i++) out += "<option>"+i+"</option>";
             out += "</select></td>";
             out += "<td style='text-align:center'><input class='scale' feedid="+feedlist[z].id+" type='text' style='width:50px' value='1.0' /></td>";
