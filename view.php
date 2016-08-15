@@ -158,7 +158,7 @@
             <div id="window-info" style=""></div><br>
                 
             <table class="table">
-                <tr><th>Feed</th><th></th><th>Quality</th><th>Min</th><th>Max</th><th>Diff</th><th>Mean</th><th>Stdev</th><th style='text-align:center'>Scale</th><th style='text-align:center'>Delta</th><th style='text-align:center'>Average</th><th>Decimal Points</th><th style="width:120px"></th><th style="width:80px"></th></tr>
+                <tr><th>Feed</th><th></th><th>Quality</th><th>Min</th><th>Max</th><th>Diff</th><th>Mean</th><th>Stdev</th><th>Int</th><th>Wh</th><th>kWh</th><th style='text-align:center'>Scale</th><th style='text-align:center'>Delta</th><th style='text-align:center'>Average</th><th>Decimal Points</th><th style="width:120px"></th><th style="width:80px"></th></tr>
                 <tbody id="stats"></tbody>
             </table>
             
